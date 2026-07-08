@@ -1,0 +1,8 @@
+#
+# Streamlit 产品工作台依赖 (SPEC §6 / docker-compose frontend 服务).
+# 与后端 app 解耦: 独立虚拟环境.
+#
+streamlit>=1.38,<2
+pandas>=2.2,<3
+plotly>=5.20,<7
+httpx>=0.27,<1

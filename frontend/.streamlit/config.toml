@@ -1,0 +1,12 @@
+# spark-pricing · Streamlit 产品工作台主题 (SPEC §3.7.1)
+# 单一品牌主色 (电力青绿) + 2 中性辅色; 浅色背景; 企业克制风, 禁花哨发光/渐变彩虹.
+
+[theme]
+primaryColor = "#0F8B6C"        # 主色: 电力青绿 (capped single brand color)
+backgroundColor = "#FFFFFF"     # 浅色卡片背景
+secondaryBackgroundColor = "#F6F8F7"   # 卡片/侧边bar 中性灰
+textColor = "#1F2A2E"           # 深色文字
+font = "sans serif"             # Inter/系统字体栈, 数字表用 mono 对齐
+
+[server]
+maxUploadSize = 5
