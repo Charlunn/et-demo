@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import numpy as np
 
+from app.core.logging import get_logger
 from app.domain.forecaster.base import Forecaster
 from app.domain.forecaster.persistence import PersistenceForecaster
-from app.core.logging import get_logger
 
 log = get_logger(__name__)
 

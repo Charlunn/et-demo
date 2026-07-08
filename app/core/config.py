@@ -70,7 +70,7 @@ class Settings(BaseSettings):
         return v
 
     @model_validator(mode="after")
-    def _validate_secret(self) -> "Settings":
+    def _validate_secret(self) -> Settings:
         # SPEC §4.1: 非 debug 下默认值/过短 -> 拒启动 (fail-fast).
         if not self.debug:
             if self.secret_key == _DEFAULT_SECRET:
@@ -86,7 +86,7 @@ class Settings(BaseSettings):
 
 # 单例: 进程内复用. 测试通过 monkeypatch 或直接构造新 Settings 覆盖.
 def get_settings() -> Settings:
-    return Settings()  # type: ignore[call-arg]
+    return Settings()
 
 
 settings = get_settings()

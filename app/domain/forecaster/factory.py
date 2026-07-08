@@ -28,7 +28,11 @@ def get_forecaster(model_name: str | None = None) -> Forecaster:
         try:
             import xgboost  # type: ignore[import-not-found]  # noqa: F401
         except ImportError:
-            log.warning("forecaster_fallback", requested="xgboost", reason="xgboost not installed -> persistence")
+            log.warning(
+                "forecaster_fallback",
+                requested="xgboost",
+                reason="xgboost not installed -> persistence",
+            )
             return PersistenceForecaster()
         return XGBoostForecaster()
     if name == "lstm":

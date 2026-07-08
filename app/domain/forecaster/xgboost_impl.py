@@ -35,15 +35,15 @@ class XGBoostForecaster(Forecaster):
             return PersistenceForecaster().forecast(history, horizon)
         xa = np.asarray(X, dtype=float)
         ya = np.asarray(y, dtype=float)
-        model = XGBRegressor(
-            n_estimators=80, max_depth=3, learning_rate=0.1, verbosity=0, n_jobs=1
-        )
+        model = XGBRegressor(n_estimators=80, max_depth=3, learning_rate=0.1, verbosity=0, n_jobs=1)
         model.fit(xa, ya)
         # 自回归滚动预测 horizon 步.
         tail = list(history[-window:])
         out = np.empty(horizon, dtype=float)
         for k in range(horizon):
-            feat = np.asarray([*tail[-window:], float((history.size + k) % PERIODS_PER_DAY)], dtype=float).reshape(1, -1)
+            feat = np.asarray(
+                [*tail[-window:], float((history.size + k) % PERIODS_PER_DAY)], dtype=float
+            ).reshape(1, -1)
             pred = float(model.predict(feat)[0])
             out[k] = max(pred, 0.0)
             tail.append(pred)

@@ -10,6 +10,7 @@ import logging
 import time
 import uuid
 from collections.abc import Awaitable, Callable
+from typing import Any
 
 import structlog
 from fastapi import Request, Response
@@ -26,7 +27,7 @@ def configure_logging() -> None:
     # 抑制第三方库在 DEBUG 下的海量调试噪声 (业务仍可 debug 级记录).
     for noisy in ("aiosqlite", "httpx", "httpcore", "watchfiles"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
-    processors: list[object] = [
+    processors: list[Any] = [
         structlog.contextvars.merge_contextvars,
         structlog.stdlib.add_log_level,
         structlog.processors.TimeStamper(fmt="iso", utc=True),
@@ -37,14 +38,6 @@ def configure_logging() -> None:
     else:
         processors.append(structlog.processors.dict_tracebacks)
         processors.append(structlog.processors.JSONRenderer())
-    structlog.configure(
-        processors=processors,
-        wrapper_class=structlog.make_filtering_bound_logger(level),
-        # stdlib LoggerFactory: 让 structlog 事件经标准 logging 路由, 以便 caplog/全局级别控制.
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        cache_logger_on_first_use=False,
-    )
-    level = logging.DEBUG if settings.debug else logging.INFO
     structlog.configure(
         processors=processors,
         wrapper_class=structlog.make_filtering_bound_logger(level),

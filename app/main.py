@@ -7,16 +7,19 @@ startup-shutdown 日志. 路由按 P1 阶段陆续挂载.
 
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordRequestForm
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.api.routes import health
+from app.api.routes import backtest, bids, clearing, forecast, health, market, settlement, stream
 from app.core.config import settings
 from app.core.errors import DomainError
 from app.core.logging import LoggingMiddleware, configure_logging, get_logger, get_request_id
@@ -49,6 +52,14 @@ def _problem(
 
 def create_app() -> FastAPI:
     configure_logging()
+
+    @asynccontextmanager
+    async def _lifespan(app: FastAPI):  # noqa: ARG001
+        log.info("app_start", app=settings.app_name, debug=settings.debug)
+        yield
+        await dispose_engine()
+        log.info("app_stop", app=settings.app_name)
+
     app = FastAPI(
         title="spark-pricing",
         version="0.1.0",
@@ -57,6 +68,7 @@ def create_app() -> FastAPI:
             "双结算三层 → 回测复盘. 后端 + 数据 + Streamlit 产品工作台, 整体可搬进对方系统."
         ),
         debug=settings.debug,
+        lifespan=_lifespan,
     )
 
     # ---- CORS allowlist (SPEC §4.5). prod 空列表; 通配被拒. ----
@@ -72,6 +84,12 @@ def create_app() -> FastAPI:
 
     app.add_middleware(LoggingMiddleware)
 
+    # ---- slowapi 限流 (SPEC §4.5): 各写端点 @limiter.limit; 全局 handler 处理超限 ----
+    from app.core.ratelimit import limiter
+
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
     # ---- 全局 ProblemDetail exception handlers (SPEC §4.3). 兜底绝不回栈. ----
     @app.exception_handler(DomainError)
     async def _domain_error_handler(request: Request, exc: DomainError) -> JSONResponse:
@@ -79,7 +97,9 @@ def create_app() -> FastAPI:
         return _problem(request, status_code=exc.status, title=exc.title, detail=exc.detail)
 
     @app.exception_handler(StarletteHTTPException)
-    async def _http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+    async def _http_exception_handler(
+        request: Request, exc: StarletteHTTPException
+    ) -> JSONResponse:
         detail = exc.detail if isinstance(exc.detail, str) else "HTTP error"
         return _problem(request, status_code=exc.status_code, title="HTTP error", detail=detail)
 
@@ -87,7 +107,9 @@ def create_app() -> FastAPI:
     async def _validation_error_handler(
         request: Request, exc: RequestValidationError
     ) -> JSONResponse:
-        detail = "; ".join(f"{'.'.join(str(p) for p in err['loc'])}: {err['msg']}" for err in exc.errors())
+        detail = "; ".join(
+            f"{'.'.join(str(p) for p in err['loc'])}: {err['msg']}" for err in exc.errors()
+        )
         return _problem(
             request, status_code=422, title="Validation error", detail=detail or "请求体校验失败"
         )
@@ -121,15 +143,13 @@ def create_app() -> FastAPI:
 
     # ---- 路由挂载 ----
     app.include_router(health.router)
-
-    @app.on_event("startup")
-    async def _startup() -> None:
-        log.info("app_start", app=settings.app_name, debug=settings.debug)
-
-    @app.on_event("shutdown")
-    async def _shutdown() -> None:
-        await dispose_engine()
-        log.info("app_stop", app=settings.app_name)
+    app.include_router(market.router)
+    app.include_router(bids.router)
+    app.include_router(clearing.router)
+    app.include_router(settlement.router)
+    app.include_router(forecast.router)
+    app.include_router(backtest.router)
+    app.include_router(stream.router)
 
     return app
 

@@ -22,11 +22,15 @@ class ProblemDetail(BaseModel):
         description="请求追踪 ID, 与响应头 X-Request-ID 一致",
     )
 
-    model_config = {"json_schema_extra": {"example": {
-        "type": "about:blank",
-        "title": "Not found",
-        "status": 404,
-        "detail": "未找到机组",
-        "instance": "/units/99",
-        "request_id": "a1b2c3",
-    }}}
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "type": "about:blank",
+                "title": "Not found",
+                "status": 404,
+                "detail": "未找到机组",
+                "instance": "/units/99",
+                "request_id": "a1b2c3",
+            }
+        }
+    }

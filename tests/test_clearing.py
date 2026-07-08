@@ -69,7 +69,9 @@ def test_congestion_split_lmp():
 def test_reserve_constraint_must_be_satisfied():
     """备用约束: Σ R >= 备用需求; 备用在 P+R<=Pmax 夹缝内可满足时解仍最优."""
     # 一台机组足够头皮地留 15MW 备用而不破坏平衡.
-    res = solve_clearing(case(LINEAR_UNITS, fmax=1000.0, ref_load=60.0, load_load=40.0, reserve=15.0))
+    res = solve_clearing(
+        case(LINEAR_UNITS, fmax=1000.0, ref_load=60.0, load_load=40.0, reserve=15.0)
+    )
     pr = res.periods[0]
     total_reserve = sum(pr.r.values())
     assert total_reserve >= 15.0 - 1e-6

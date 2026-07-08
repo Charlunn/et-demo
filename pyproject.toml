@@ -67,9 +67,12 @@ show_missing = true
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+# E501 (行太长): 注释含中文/字段 json_schema_extra 常见超 100; 不强求注释折行,
+# 关键守则型检查 (F 未用 import / T20 print / SIM / B / RET) 保留.
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "UP", "B", "SIM", "T20", "RET"]
+select = ["F", "W", "I", "UP", "B", "SIM", "T20", "RET"]
+ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["E501", "T20"]

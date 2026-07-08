@@ -8,10 +8,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Annotated, Protocol
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
+from typing import Annotated, Any, cast
 
-from fastapi import Depends, status
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from jose.exceptions import JWTError as JoseJWTError
@@ -25,11 +26,6 @@ log = get_logger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 
-class CurrentUser(Protocol):
-    username: str
-    scopes: list[str]
-
-
 def _authenticate(username: str, password: str) -> bool:
     # demo-only 密码比对 (SPEC §4.2: 提供一个 dev test user). 生产应走哈希/外部 IdP.
     return username == settings.demo_user and password == settings.demo_password
@@ -41,7 +37,7 @@ def create_access_token(
     scopes: list[str],
     expires_minutes: int | None = None,
 ) -> str:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expire = now + timedelta(minutes=expires_minutes or settings.access_token_expire_minutes)
     payload = {
         "sub": username,
@@ -71,24 +67,24 @@ def decode_token(token: str) -> dict[str, object]:
     return payload
 
 
-async def get_current_user(token: Annotated[str | None, Depends(oauth2_scheme)]) -> dict[str, object]:
+async def get_current_user(
+    token: Annotated[str | None, Depends(oauth2_scheme)],
+) -> dict[str, object]:
     """解析 Bearer token, 失败抛 401. 所有 user 级端点依赖此函数."""
     if not token:
         raise UnauthorizedError("缺少访问令牌")
-    payload = decode_token(token)
-    return payload
+    return decode_token(token)
 
 
-def require_scope(scope: str):  # type: ignore[no-untyped-def]
+def require_scope(scope: str) -> Callable[..., Any]:
     """FastAPI dependency 工厂: 校验当前用户持有指定 scope, 否则 403."""
 
-    async def _checker(user: Annotated[dict[str, object], Depends(get_current_user)]) -> dict[str, object]:
+    async def _checker(
+        user: Annotated[dict[str, object], Depends(get_current_user)],
+    ) -> dict[str, object]:
         # scopes 可能是 list[str] (我们颁发的) 或 space-joined str (标准 OAuth).
         raw = user.get("scopes", [])
-        if isinstance(raw, str):
-            user_scopes = set(raw.split())
-        else:
-            user_scopes = set(raw)  # type: ignore[arg-type]
+        user_scopes = set(raw.split()) if isinstance(raw, str) else set(cast("list[str]", raw))
         if scope not in user_scopes:
             log.warning("forbidden", username=user.get("sub"), required_scope=scope)
             raise ForbiddenError(f"缺少必要 scope: {scope}")

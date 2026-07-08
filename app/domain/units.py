@@ -61,11 +61,21 @@ class Network:
 # 卡住, 使负荷节点 LMP 高于参考节点 -> 产生阻塞价.
 def default_units() -> list[Unit]:
     return [
-        Unit("G1", "REF", a=0.02, b=20.0, c=0.0, p_min=0.0, p_max=120.0, ramp_up=60.0, ramp_down=60.0),
-        Unit("G2", "REF", a=0.03, b=25.0, c=0.0, p_min=0.0, p_max=100.0, ramp_up=50.0, ramp_down=50.0),
-        Unit("G3", "REF", a=0.05, b=30.0, c=0.0, p_min=0.0, p_max=80.0, ramp_up=40.0, ramp_down=40.0),
-        Unit("G4", "LOAD", a=0.01, b=40.0, c=0.0, p_min=0.0, p_max=60.0, ramp_up=40.0, ramp_down=40.0),
-        Unit("G5", "LOAD", a=0.02, b=45.0, c=0.0, p_min=0.0, p_max=50.0, ramp_up=30.0, ramp_down=30.0),
+        Unit(
+            "G1", "REF", a=0.02, b=20.0, c=0.0, p_min=0.0, p_max=120.0, ramp_up=60.0, ramp_down=60.0
+        ),
+        Unit(
+            "G2", "REF", a=0.03, b=25.0, c=0.0, p_min=0.0, p_max=100.0, ramp_up=50.0, ramp_down=50.0
+        ),
+        Unit(
+            "G3", "REF", a=0.05, b=30.0, c=0.0, p_min=0.0, p_max=80.0, ramp_up=40.0, ramp_down=40.0
+        ),
+        Unit(
+            "G4", "LOAD", a=0.01, b=40.0, c=0.0, p_min=0.0, p_max=60.0, ramp_up=40.0, ramp_down=40.0
+        ),
+        Unit(
+            "G5", "LOAD", a=0.02, b=45.0, c=0.0, p_min=0.0, p_max=50.0, ramp_up=30.0, ramp_down=30.0
+        ),
     ]
 
 

@@ -9,17 +9,16 @@
 from __future__ import annotations
 
 import json
-from typing import Annotated
 
 import click
 import numpy as np
 
 from app.core.config import settings
-from app.domain.units import default_network, default_units
-from scripts.seed_demo import seed_market, to_clearing_input
-from app.services.clearing import ClearingRequestDTO
-from app.services.backtest import run_backtest
 from app.domain.settlement import CfdContract
+from app.domain.units import default_network, default_units
+from app.services.backtest import run_backtest
+from app.services.clearing import ClearingRequestDTO
+from scripts.seed_demo import seed_market, to_clearing_input
 
 
 @click.group()
@@ -29,8 +28,16 @@ def cli() -> None:
 
 @cli.command("backtest")
 @click.option("--days", default=2, show_default=True, help="合成历史天数 (1天=96 时段)")
-@click.option("--line-limit", "line_limit", default=None, type=float, help="线路潮流上限 MW (默认 settings)")
-@click.option("--model", "model", default=None, type=click.Choice(["persistence", "xgboost", "lstm"]), help="预测模型")
+@click.option(
+    "--line-limit", "line_limit", default=None, type=float, help="线路潮流上限 MW (默认 settings)"
+)
+@click.option(
+    "--model",
+    "model",
+    default=None,
+    type=click.Choice(["persistence", "xgboost", "lstm"]),
+    help="预测模型",
+)
 def backtest_cmd(days: int, line_limit: float | None, model: str | None) -> None:
     """跑回测主线: 出清 + 结算 + 指标, 输出 BacktestReport (JSON 到 stdout)."""
     fmax = line_limit if line_limit is not None else settings.line_flow_limit_mw

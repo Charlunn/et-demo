@@ -142,13 +142,19 @@ def solve_clearing(inp: ClearingInput) -> ClearingResult:
     # ---- 机组: P + R <= P_max (备用容量不超额) ----
     for g in units:
         for t in range(T):
-            prob.addConstraint(P[(g.unit_id, t)] + R[(g.unit_id, t)] <= g.p_max, name=f"cap_{g.unit_id}_{t}")
+            prob.addConstraint(
+                P[(g.unit_id, t)] + R[(g.unit_id, t)] <= g.p_max, name=f"cap_{g.unit_id}_{t}"
+            )
 
     # ---- 爬坡 ----
     for g in units:
         for t in range(1, T):
-            prob.addConstraint(P[(g.unit_id, t)] - P[(g.unit_id, t - 1)] <= g.ramp_up, name=f"ru_{g.unit_id}_{t}")
-            prob.addConstraint(P[(g.unit_id, t - 1)] - P[(g.unit_id, t)] <= g.ramp_down, name=f"rd_{g.unit_id}_{t}")
+            prob.addConstraint(
+                P[(g.unit_id, t)] - P[(g.unit_id, t - 1)] <= g.ramp_up, name=f"ru_{g.unit_id}_{t}"
+            )
+            prob.addConstraint(
+                P[(g.unit_id, t - 1)] - P[(g.unit_id, t)] <= g.ramp_down, name=f"rd_{g.unit_id}_{t}"
+            )
 
     # ---- 求解 ----
     solver = pulp.PULP_CBC_CMD(msg=False)
@@ -173,11 +179,8 @@ def solve_clearing(inp: ClearingInput) -> ClearingResult:
         lmp[load] = load_lmp
         for node in nodes:
             base = ref_lmp
-            if node == ref:
-                congestion = 0.0
-            else:
-                # SIM: 阻塞价 = 该节点 LMP - 参考节点 LMP; 损耗 = 0 (注释生产才计).
-                congestion = load_lmp - ref_lmp
+            # SIM: 阻塞价 = 该节点 LMP - 参考节点 LMP; 损耗 = 0 (注释生产才计).
+            congestion = 0.0 if node == ref else load_lmp - ref_lmp
             comps[node] = {"energy": base, "congestion": congestion, "loss": 0.0}
         flow = float(F[t].varValue or 0.0)
         blocked = abs(flow) >= f_max - 1e-6

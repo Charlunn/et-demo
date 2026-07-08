@@ -18,7 +18,9 @@ class ClearingRequestDTO:
     periods: int
 
 
-def run_clearing(req: ClearingRequestDTO, *, line_flow_limit_mw: float | None = None) -> ClearingResult:
+def run_clearing(
+    req: ClearingRequestDTO, *, line_flow_limit_mw: float | None = None
+) -> ClearingResult:
     """跑日前出清. 可选覆盖线路潮流上限以复现阻塞."""
     network = req.network
     if line_flow_limit_mw is not None:
@@ -31,7 +33,8 @@ def run_clearing(req: ClearingRequestDTO, *, line_flow_limit_mw: float | None = 
         units=req.units,
         network=network,
         load_per_node=req.load_per_node,
-        reserve_requirement_mw=req.reserve_requirement_mw or [settings.reserve_requirement_mw] * req.periods,
+        reserve_requirement_mw=req.reserve_requirement_mw
+        or [settings.reserve_requirement_mw] * req.periods,
         periods=req.periods,
     )
     return solve_clearing(inp)

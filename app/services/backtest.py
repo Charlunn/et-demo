@@ -17,7 +17,7 @@ from app.domain.settlement import CfdContract, settle
 from app.domain.units import Unit
 from app.services.clearing import ClearingRequestDTO, run_clearing
 
-STRATEGY_BASELINE = "marginal"            # 策略1 基线: 报边际成本
+STRATEGY_BASELINE = "marginal"  # 策略1 基线: 报边际成本
 STRATEGY_FORECAST = "marginal_plus_forecast"  # 策略2 待测: 边际成本 + 预测加成
 
 
@@ -65,7 +65,6 @@ def _forecast_adjusted_pnl(
     """
     f = get_forecaster(model_name)
     # 滚动预测: 每步用截至 history 预测下一步, 累进 history.
-    adjusted = baseline.copy()
     hist = list(history)
     premiums = np.zeros(len(lmp_series))
     forecast_prices = np.zeros(len(lmp_series))
@@ -116,15 +115,21 @@ def run_backtest(
             forecast_pnl[i] += bd.cfd / max(len(clearing.periods), 1)
             baseline_pnl[i] += bd.cfd / max(len(clearing.periods), 1)
 
-    m_base = compute_metrics(pnl_series=baseline_pnl, forecast_prices=None, actual_prices=lmp_series)
-    m_fc = compute_metrics(pnl_series=forecast_pnl, forecast_prices=forecast_prices, actual_prices=lmp_series)
+    m_base = compute_metrics(
+        pnl_series=baseline_pnl, forecast_prices=None, actual_prices=lmp_series
+    )
+    m_fc = compute_metrics(
+        pnl_series=forecast_pnl, forecast_prices=forecast_prices, actual_prices=lmp_series
+    )
     beats = m_fc.net_pnl >= m_base.net_pnl - 1e-9
 
     def _m(m: StrategyMetrics) -> dict[str, float]:
         return {
             "net_pnl": float(m.net_pnl),
             "hit_rate": float(m.hit_rate),
-            "profit_factor": float(m.profit_factor) if np.isfinite(m.profit_factor) else float("inf"),
+            "profit_factor": float(m.profit_factor)
+            if np.isfinite(m.profit_factor)
+            else float("inf"),
             "information_ratio": float(m.information_ratio),
             "clearing_mape": float(m.clearing_mape),
             "max_drawdown": float(m.max_drawdown),
@@ -145,8 +150,12 @@ def run_backtest(
     )
     return BacktestReport(
         periods=clearing_req.periods,
-        strategy_baseline=StrategyReport(name=STRATEGY_BASELINE, model_name="n/a", metrics=_m(m_base)),
-        strategy_forecast=StrategyReport(name=STRATEGY_FORECAST, model_name=used_model, metrics=_m(m_fc)),
+        strategy_baseline=StrategyReport(
+            name=STRATEGY_BASELINE, model_name="n/a", metrics=_m(m_base)
+        ),
+        strategy_forecast=StrategyReport(
+            name=STRATEGY_FORECAST, model_name=used_model, metrics=_m(m_fc)
+        ),
         pnl_curve_baseline=baseline_pnl.tolist(),
         pnl_curve_forecast=forecast_pnl.tolist(),
         beats_baseline=beats,

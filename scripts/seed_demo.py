@@ -40,7 +40,6 @@ def seed_market(days: int = 2, line_flow_limit_mw: float = 80.0, seed: int = SEE
     T = days * PERIODS_PER_DAY
 
     # 负荷: 日内双峰 (早晚高峰) + 线性趋势 + 小噪声. 两节点负荷形状相似但 LOAD 更高.
-    theta = np.linspace(0, 2 * np.pi * days, T, endpoint=False)
     # 日内分量以 PERIODS_PER_DAY 为周期.
     phase = np.arange(T) % PERIODS_PER_DAY
     day_shape = 0.5 * (1 - np.cos(2 * np.pi * phase / PERIODS_PER_DAY))  # 0..1, 一峰
