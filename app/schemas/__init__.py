@@ -1,0 +1,1 @@
+"""Schemas 包: Pydantic v2 请求/响应 (SPEC §5)."""

@@ -1,0 +1,33 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+.uv-cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.htmlcov/
+.coverage
+coverage.xml
+
+# ---- Env / secrets ----
+.env
+spark.db
+spark-test.db
+*.db-journal
+
+# ---- Data / logs ----
+demo-data/*.parquet
+demo-data/*.csv
+!demo-data/.gitkeep
+*.log
+
+# ---- Editors / OS ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
