@@ -90,6 +90,11 @@ docker compose up --build
 - **stub / 不做**: LSTM (`lstm_stub.py` log warn, 返回 Persistence 结果, 绝不当真); 真实平台对接/真爬虫 (用固定 seed 合成行情, seed=20240101); UC 整数 (SCED 取 LP 对偶即真实 LMP, 详见 ADR 0001); 损耗 (设 0, 生产才计).
 - 合成行情来源: `scripts/seed_demo.py` 固定 seed 复现; 不接任何真实市场.
 
+## 文档中心
+完整企业级文档见 [docs/README.md](docs/README.md):
+- [使用手册 USER_GUIDE](docs/USER_GUIDE.md) (业务用户) · [接口文档 API](docs/API.md) · [架构 ARCHITECTURE](docs/ARCHITECTURE.md)
+- [部署 DEPLOYMENT](docs/DEPLOYMENT.md) · [运维 OPERATIONS](docs/OPERATIONS.md) · [安全 SECURITY](SECURITY.md)
+
 ## ADR 索引
 - [0001 · SCED LP 取对偶当 LMP, 不做 UC 整数](docs/adr/0001-sced-lp-cfd.md)
 - [0002 · 预测器接口: Persistence 默认 + XGBoost 可选 + LSTM stub](docs/adr/0002-forecaster-interface.md)
