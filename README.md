@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Charlunn/et-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/Charlunn/et-demo/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
-![license](https://img.shields.io/badge/license-demo-lightgrey)
+![license](https://img.shields.io/badge/license-MIT-green)
 
 > 电力现货交易 **端到端可交付模块** demo: 负荷预测 → 分段报价 → 联合出清 (LP, 取对偶变量当 LMP) → 双结算三层 → 回测复盘, 外加一个**给电力交易员/分析师用的 Streamlit 产品工作台** (非 API 调试器). 整体可直接搬进对方系统.
 >

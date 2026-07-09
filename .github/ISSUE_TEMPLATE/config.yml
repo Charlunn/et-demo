@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使用问题 / Usage question
+    url: https://github.com/Charlunn/et-demo/blob/main/docs/USER_GUIDE.md
+    about: 先看使用手册与文档中心 (docs/README.md)
+  - name: 安全问题 / Security
+    url: https://github.com/Charlunn/et-demo/blob/main/SECURITY.md
+    about: 安全相关请先对照 SECURITY.md; 敏感问题勿公开提 issue
