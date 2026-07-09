@@ -1,7 +1,8 @@
 """SQLAlchemy 2.0 ORM 基类 + 时间戳 mixin (SPEC §2 models/)."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -15,7 +16,7 @@ class Base(DeclarativeBase):
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class TimestampMixin:

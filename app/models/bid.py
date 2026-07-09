@@ -1,9 +1,11 @@
 """报价记录 ORM (SPEC §2). 待出清报价队列的持久化形态."""
+
 from __future__ import annotations
 
-from app.models.base import Base, TimestampMixin
 from sqlalchemy import Float, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.models.base import Base, TimestampMixin
 
 
 class BidRecord(Base, TimestampMixin):

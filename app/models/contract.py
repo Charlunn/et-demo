@@ -1,9 +1,11 @@
 """差价合约 (CfD) ORM (SPEC §3.3). 中长期层金融合约持久化."""
+
 from __future__ import annotations
 
-from app.models.base import Base, TimestampMixin
 from sqlalchemy import Float, String
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.models.base import Base, TimestampMixin
 
 
 class Contract(Base, TimestampMixin):

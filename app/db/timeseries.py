@@ -9,6 +9,7 @@
 
 全参数化查询; 无 f-string SQL.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -17,7 +18,6 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.models.base import Base  # noqa: F401  (alembic env 引用 Base.metadata)
-
 
 # 1h 聚合视图: dialect-aware (Postgres 用 date_trunc 等价 time_bucket —
 # time_bucket 需 TimescaleDB 扩展, 原生 PG 用 date_trunc; SQLite 用 strftime).

@@ -1,7 +1,6 @@
 """PriceTick 仓储 (SPEC §2 repositories). DB 访问唯一去处; 全参数化查询."""
-from __future__ import annotations
 
-from datetime import datetime
+from __future__ import annotations
 
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,7 +22,9 @@ class PriceTickRepository:
         await self._session.commit()
         return len(rows)
 
-    async def latest_for_node(self, node_id: str, series_type: str, limit: int = 288) -> list[PriceTick]:
+    async def latest_for_node(
+        self, node_id: str, series_type: str, limit: int = 288
+    ) -> list[PriceTick]:
         stmt = (
             select(PriceTick)
             .where(PriceTick.node_id == node_id, PriceTick.series_type == series_type)

@@ -1,4 +1,5 @@
 """SQLAlchemy 2.0 ORM (SPEC §2). 导入所有模型使 Base.metadata 可被 alembic/迁移发现."""
+
 from __future__ import annotations
 
 from app.models.base import Base, TimestampMixin

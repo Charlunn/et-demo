@@ -1,9 +1,11 @@
 """出清结果 ORM (SPEC §2). 单次出清产物的持久化形态."""
+
 from __future__ import annotations
 
-from app.models.base import Base, TimestampMixin
 from sqlalchemy import Float, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.models.base import Base, TimestampMixin
 
 
 class ClearingResultRecord(Base, TimestampMixin):

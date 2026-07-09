@@ -3,6 +3,7 @@
 不跑 alembic (CI 已跑): 这里用 Base.metadata.create_all 在临时库建表是测试一次性手段,
 仅验证仓储语义. prod 仍走 alembic (SPEC §4.6).
 """
+
 from __future__ import annotations
 
 import os
@@ -45,33 +46,47 @@ async def test_clearing_result_repository_save(temp_session):
     from app.repositories.clearing_result import ClearingResultRepository
 
     repo = ClearingResultRepository(temp_session)
-    rec = await repo.save(periods=96, line_flow_limit_mw=80.0, total_cost=1234.0,
-                           payload={"status": "optimal"})
+    rec = await repo.save(
+        periods=96, line_flow_limit_mw=80.0, total_cost=1234.0, payload={"status": "optimal"}
+    )
     assert rec.periods == 96 and rec.total_cost == 1234.0
 
 
 @pytest.mark.asyncio
 async def test_price_tick_repository_bulk_and_query(temp_session):
-    from app.repositories.price_tick import PriceTickRepository
-    from app.db.timeseries import bulk_insert_stmt
     from sqlalchemy import text
 
+    from app.db.timeseries import bulk_insert_stmt
+    from app.repositories.price_tick import PriceTickRepository
+
     # 先建 price_1h view (测试一次性环境里 alembic 没跑, 这里手动建 sqlite 版)
-    await temp_session.execute(text(
-        "CREATE VIEW IF NOT EXISTS price_1h AS "
-        "SELECT node_id, series_type, strftime('%Y-%m-%d %H:00', ts) AS hour, "
-        "avg(value) AS avg_value, count(*) AS n "
-        "FROM price_tick GROUP BY node_id, series_type, strftime('%Y-%m-%d %H:00', ts)"
-    ))
+    await temp_session.execute(
+        text(
+            "CREATE VIEW IF NOT EXISTS price_1h AS "
+            "SELECT node_id, series_type, strftime('%Y-%m-%d %H:00', ts) AS hour, "
+            "avg(value) AS avg_value, count(*) AS n "
+            "FROM price_tick GROUP BY node_id, series_type, strftime('%Y-%m-%d %H:00', ts)"
+        )
+    )
     await temp_session.commit()
     repo = PriceTickRepository(temp_session)
     rows = [
-        {"ts": datetime(2024, 1, 1, 0, 0, tzinfo=UTC), "node_id": "LOAD",
-         "series_type": "lmp", "value": 40.0, "quality_flag": "OK",
-         "ingested_at": datetime(2024, 1, 1, 0, 0, tzinfo=UTC)},
-        {"ts": datetime(2024, 1, 1, 0, 15, tzinfo=UTC), "node_id": "LOAD",
-         "series_type": "lmp", "value": 42.0, "quality_flag": "OK",
-         "ingested_at": datetime(2024, 1, 1, 0, 0, tzinfo=UTC)},
+        {
+            "ts": datetime(2024, 1, 1, 0, 0, tzinfo=UTC),
+            "node_id": "LOAD",
+            "series_type": "lmp",
+            "value": 40.0,
+            "quality_flag": "OK",
+            "ingested_at": datetime(2024, 1, 1, 0, 0, tzinfo=UTC),
+        },
+        {
+            "ts": datetime(2024, 1, 1, 0, 15, tzinfo=UTC),
+            "node_id": "LOAD",
+            "series_type": "lmp",
+            "value": 42.0,
+            "quality_flag": "OK",
+            "ingested_at": datetime(2024, 1, 1, 0, 0, tzinfo=UTC),
+        },
     ]
     n = await repo.bulk_upsert(rows)
     assert n == 2

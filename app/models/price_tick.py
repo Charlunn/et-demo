@@ -1,4 +1,5 @@
 """实时窄表 PriceTick (SPEC §3.6). 时序表 + (node_id, ts DESC) 索引."""
+
 from __future__ import annotations
 
 from datetime import datetime

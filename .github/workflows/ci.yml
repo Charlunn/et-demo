@@ -1,0 +1,64 @@
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  lint-type-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        run: pip install uv==0.11.26
+      - name: Sync deps (proves lock resolvable from zero, SPEC §3)
+        run: uv sync --extra dev
+      - name: Ruff check
+        run: uv run ruff check app tests scripts
+      - name: Ruff format check
+        run: uv run ruff format --check app tests scripts
+      - name: Mypy (strict on core/domain/services)
+        run: uv run mypy
+      - name: Alembic upgrade head (SQLite)
+        env:
+          DATABASE_URL: "sqlite+aiosqlite:///./ci-test.db"
+        run: uv run alembic upgrade head
+      - name: Pytest + coverage gate (app/services + app/domain >= 80)
+        run: uv run pytest --cov=app/services --cov=app/domain --cov-fail-under 80
+      - name: Frontend smoke
+        working-directory: frontend
+        run: |
+          uv venv --python 3.12 .venv-cic
+          uv pip install -r requirements.txt pytest --python .venv-cic
+          .venv-cic/bin/python -m pytest tests/test_smoke.py -q
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: SECRET_KEY fail-fast test
+        run: |
+          pip install uv==0.11.26 && uv sync --extra dev
+          # 非 debug + 占位默认 SECRET_KEY -> Settings 启动应被拒 (SPEC §4.1)
+          uv run python -c "
+          import os
+          os.environ['DEBUG']='false'
+          os.environ['SECRET_KEY']='dev-only-do-not-use-in-production-please-change-me-32chars-min'
+          import pytest, sys
+          try:
+              from app.core.config import Settings
+              Settings(); print('FAIL: should have raised'); sys.exit(1)
+          except ValueError as e:
+              assert 'SECRET_KEY' in str(e); print('OK fail-fast'); sys.exit(0)
+          "

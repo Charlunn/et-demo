@@ -1,4 +1,5 @@
 """报价仓储 (SPEC §2). 待出清报价持久化队列."""
+
 from __future__ import annotations
 
 import json
@@ -13,11 +14,16 @@ class BidRepository:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def enqueue(self, unit_id: str, strategy: str, risk_markup: float,
-                      segments: list[dict]) -> BidRecord:
+    async def enqueue(
+        self, unit_id: str, strategy: str, risk_markup: float, segments: list[dict]
+    ) -> BidRecord:
         rec = BidRecord(
-            unit_id=unit_id, strategy=strategy, risk_markup=risk_markup,
-            segment_count=len(segments), segments_json=json.dumps(segments), status="queued",
+            unit_id=unit_id,
+            strategy=strategy,
+            risk_markup=risk_markup,
+            segment_count=len(segments),
+            segments_json=json.dumps(segments),
+            status="queued",
         )
         self._session.add(rec)
         await self._session.commit()
