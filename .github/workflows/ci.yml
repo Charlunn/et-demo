@@ -43,10 +43,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: gitleaks (扫 git 历史, 仅覆盖被追踪文件)
+        # 用 gitleaks CLI 的 `git` 模式扫已提交历史 (只含被 git 追踪的文件, 天然排除
+        # 未追踪的 .venv). 避开 gitleaks-action 在初始提交(无父)时 rev^..rev 崩溃的问题.
+        # .gitleaks.toml 兜底排除第三方/venv 路径. --redact 不回显命中内容.
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz \
+            | tar -xz -C /tmp gitleaks
+          /tmp/gitleaks git . --config .gitleaks.toml --redact -v --exit-code 1
       - name: SECRET_KEY fail-fast test
         run: |
           pip install uv==0.11.26 && uv sync --extra dev

@@ -1,5 +1,9 @@
 # spark-pricing
 
+[![CI](https://github.com/Charlunn/et-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/Charlunn/et-demo/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![license](https://img.shields.io/badge/license-MIT-green)
+
 > 电力现货交易 **端到端可交付模块** demo: 负荷预测 → 分段报价 → 联合出清 (LP, 取对偶变量当 LMP) → 双结算三层 → 回测复盘, 外加一个**给电力交易员/分析师用的 Streamlit 产品工作台** (非 API 调试器). 整体可直接搬进对方系统.
 >
 > An end-to-end, drop-in module for power spot-market trading: load forecast → segmented bidding → joint clearing (LP, LMP from duals) → three-layer settlement → backtest, plus a **Streamlit product workbench for traders/analysts** (not an API debugger).

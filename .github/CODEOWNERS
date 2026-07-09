@@ -1,0 +1,14 @@
+# 代码所有者 (审查路由). 详见 https://docs.github.com/articles/about-code-owners
+# 默认全仓归属维护者; 按需为关键目录指定专属审查人.
+
+*                     @Charlunn
+
+# 领域算法与出清引擎: 改动需领域审查
+/app/domain/          @Charlunn
+
+# 安全与配置: 改动需谨慎审查
+/app/core/            @Charlunn
+/SECURITY.md          @Charlunn
+
+# 迁移: 数据结构变更需审查
+/alembic/             @Charlunn
