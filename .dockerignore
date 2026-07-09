@@ -1,0 +1,19 @@
+# docker 忽略清单 (SPEC §6).
+.venv
+frontend/.venv
+__pycache__
+*.pyc
+*.pyo
+.git
+.github
+docs
+demo-data
+*.db
+*.log
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+tests
+.env

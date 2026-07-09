@@ -5,6 +5,8 @@ Revises:
 Create Date: 2024-01-01 00:00:00
 
 SPEC §4.6: Alembic baseline; prod 不用 create_all. CI 跑 alembic upgrade head.
+Postgres 1h 聚合用 date_trunc 等价 time_bucket (time_bucket 需 TimescaleDB 扩展,
+注释标生产才上 create_hypertable; 原生 PG 用 date_trunc 即可).
 """
 from __future__ import annotations
 
@@ -76,15 +78,16 @@ def upgrade() -> None:
     )
     op.create_index("ix_contract_contract_id", "contract", ["contract_id"])
 
-    # 1h 聚合 view (SQLite 用 strftime 等价 time_bucket; Postgres 下另行建).
+    # 1h 聚合 view (SQLite 用 strftime; Postgres 用 date_trunc 等价 time_bucket
+    # — time_bucket 需 TimescaleDB 扩展, 此处用原生 date_trunc, 注释标生产才上 hypertable).
     bind = op.get_bind()
     url = str(bind.engine.url)
     if url.startswith("postgres"):
         op.execute(
             "CREATE OR REPLACE VIEW price_1h AS "
-            "SELECT node_id, series_type, time_bucket('1h', ts) AS hour, "
+            "SELECT node_id, series_type, date_trunc('hour', ts) AS hour, "
             "avg(value) AS avg_value, count(*) AS n "
-            "FROM price_tick GROUP BY node_id, series_type, time_bucket('1h', ts)"
+            "FROM price_tick GROUP BY node_id, series_type, date_trunc('hour', ts)"
         )
     else:
         op.execute(

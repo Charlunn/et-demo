@@ -19,13 +19,14 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from app.models.base import Base  # noqa: F401  (alembic env 引用 Base.metadata)
 
 
-# 1h 聚合视图: dialect-aware 定义 (Postgres: time_bucket; SQLite: strftime).
+# 1h 聚合视图: dialect-aware (Postgres 用 date_trunc 等价 time_bucket —
+# time_bucket 需 TimescaleDB 扩展, 原生 PG 用 date_trunc; SQLite 用 strftime).
 PRICE_1H_VIEW_PG = """
 CREATE OR REPLACE VIEW price_1h AS
 SELECT node_id, series_type,
-       time_bucket('1h', ts) AS hour,
+       date_trunc('hour', ts) AS hour,
        avg(value) AS avg_value, count(*) AS n
-FROM price_tick GROUP BY node_id, series_type, time_bucket('1h', ts)
+FROM price_tick GROUP BY node_id, series_type, date_trunc('hour', ts)
 """
 
 PRICE_1H_VIEW_SQLITE = """

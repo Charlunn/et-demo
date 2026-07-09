@@ -12,6 +12,7 @@ dependencies = [
     "pydantic-settings>=2.3.0",
     "sqlalchemy>=2.0.30",
     "aiosqlite>=0.20.0",
+    "asyncpg>=0.29.0",
     "alembic>=1.13.0",
     "pulp>=2.8.0",
     "numpy>=1.26.0",
