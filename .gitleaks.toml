@@ -1,0 +1,12 @@
+# gitleaks 配置: 继承默认规则集, 排除第三方/虚拟环境路径 (避免 venv 内库文件误报).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "排除虚拟环境与第三方产物 (非本仓源码)"
+paths = [
+    '''.*\.venv/.*''',
+    '''frontend/\.venv/.*''',
+    '''node_modules/.*''',
+    '''uv\.lock''',
+]
